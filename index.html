@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CRC Worship">
+<meta name="theme-color" content="#0b0917">
+<title>CRC Worship Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep:#0b0917;--bg-card:#14102a;--bg-elevated:#1c1735;
+    --gold:#c9a84c;--gold-light:#e8c97a;--gold-dim:#7a5f28;
+    --purple-soft:#6b5b9e;--purple-glow:#9b85d4;
+    --text-primary:#f0eaff;--text-secondary:#a89ec8;--text-muted:#5c5480;
+    --border:rgba(201,168,76,0.18);--border-soft:rgba(107,91,158,0.2);
+    --danger:#e05c5c;--success:#5cb88a;--blue:#4a9eca;
+    --radius:14px;--radius-sm:8px;--shadow:0 8px 32px rgba(0,0,0,0.5);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Lato',sans-serif;background:var(--bg-deep);color:var(--text-primary);min-height:100vh;min-height:-webkit-fill-available;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(ellipse at 50% 0%,rgba(107,91,158,0.25) 0%,transparent 60%),radial-gradient(ellipse at 100% 100%,rgba(201,168,76,0.08) 0%,transparent 50%);pointer-events:none;z-index:0}
+  .screen{display:none;min-height:100vh;position:relative;z-index:1}
+  .screen.active{display:flex;flex-direction:column}
+
+  /* LOADING */
+  #loadingScreen{align-items:center;justify-content:center;gap:20px}
+  .loading-cross{font-size:48px;color:var(--gold);text-shadow:0 0 30px rgba(201,168,76,0.4);animation:pulse 2s ease-in-out infinite}
+  .loading-text{font-family:'Cinzel',serif;font-size:13px;color:var(--text-muted);letter-spacing:3px}
+  .spinner{width:28px;height:28px;border:2px solid var(--border-soft);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite}
+  .loading-sub{font-size:12px;color:var(--text-muted);margin-top:4px;text-align:center;padding:0 20px}
+  .btn-skip{margin-top:8px;background:none;border:1px solid var(--border-soft);border-radius:8px;padding:10px 20px;color:var(--text-muted);font-family:'Lato',sans-serif;font-size:13px;cursor:pointer;display:none}
+  .btn-skip.visible{display:block}
+
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+  /* LOGIN */
+  #loginScreen{align-items:center;justify-content:center;padding:24px}
+  .login-box{width:100%;max-width:380px;background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:40px 32px;box-shadow:var(--shadow),0 0 60px rgba(107,91,158,0.15);display:flex;flex-direction:column;gap:22px;animation:fadeUp 0.6s ease}
+  .login-cross{text-align:center;font-size:36px;color:var(--gold);text-shadow:0 0 20px rgba(201,168,76,0.4)}
+  .login-title{text-align:center}
+  .login-title h1{font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:var(--gold-light);letter-spacing:2px;line-height:1.4}
+  .login-title p{font-size:11px;color:var(--text-muted);letter-spacing:3px;text-transform:uppercase;margin-top:6px}
+  .divider{height:1px;background:var(--border)}
+  .input-group{display:flex;flex-direction:column;gap:12px}
+  .ff input{width:100%;background:var(--bg-elevated);border:1px solid var(--border-soft);border-radius:var(--radius-sm);padding:14px 16px;color:var(--text-primary);font-family:'Lato',sans-serif;font-size:15px;outline:none;transition:border-color 0.2s}
+  .ff input:focus{border-color:var(--gold-dim)}
+  .ff input::placeholder{color:var(--text-muted)}
+  .btn-primary{background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0b0917;border:none;border-radius:var(--radius-sm);padding:15px;font-family:'Cinzel',serif;font-size:14px;font-weight:700;letter-spacing:2px;cursor:pointer;width:100%;transition:opacity 0.2s}
+  .btn-primary:active{opacity:0.85}
+  .guest-link{text-align:center;font-size:13px;color:var(--text-muted)}
+  .guest-link span{color:var(--purple-glow);cursor:pointer;text-decoration:underline}
+  .login-error{background:rgba(224,92,92,0.15);border:1px solid rgba(224,92,92,0.3);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--danger);text-align:center;display:none}
+  .db-notice{background:rgba(201,168,76,0.08);border:1px solid var(--gold-dim);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--gold);text-align:center;display:none;line-height:1.5}
+
+  /* APP */
+  #appScreen{flex-direction:column}
+  .app-header{background:linear-gradient(180deg,rgba(11,9,23,0.98) 0%,rgba(20,16,42,0.95) 100%);border-bottom:1px solid var(--border);padding:14px 18px 0;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .church-brand .cross-small{font-size:13px;color:var(--gold)}
+  .church-brand h1{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--gold-light);letter-spacing:1px;line-height:1.3}
+  .church-brand p{font-size:10px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase}
+  .header-actions{display:flex;gap:8px;align-items:center}
+  .badge-editor{background:rgba(201,168,76,0.15);border:1px solid var(--gold-dim);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--gold);letter-spacing:1px}
+  .badge-guest{background:rgba(107,91,158,0.15);border:1px solid var(--border-soft);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--purple-glow);letter-spacing:1px}
+  .btn-icon{background:var(--bg-elevated);border:1px solid var(--border-soft);border-radius:8px;padding:7px 10px;color:var(--text-secondary);font-size:13px;cursor:pointer}
+  .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--success);display:inline-block;animation:pulse 2s infinite}
+  .sync-dot.off{background:var(--danger);animation:none}
+  .sync-dot.warn{background:var(--gold);animation:none}
+
+  .tabs-container{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .tabs-container::-webkit-scrollbar{display:none}
+  .tab-btn{flex-shrink:0;background:none;border:none;border-bottom:2px solid transparent;padding:9px 13px;font-family:'Lato',sans-serif;font-size:13px;color:var(--text-muted);cursor:pointer;transition:color 0.2s,border-color 0.2s;white-space:nowrap}
+  .tab-btn.active{color:var(--gold-light);border-bottom-color:var(--gold)}
+  .tab-btn.t-setlist{color:var(--blue)}
+  .tab-btn.t-setlist.active{color:var(--blue);border-bottom-color:var(--blue)}
+  .tab-btn.t-add{color:var(--gold-dim);font-size:17px;padding:6px 12px}
+
+  .app-content{flex:1;padding:18px 16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .tab-panel{display:none;animation:fadeUp 0.3s ease}
+  .tab-panel.active{display:block}
+
+  /* CONVENER */
+  .convener-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+  .convener-title{display:flex;align-items:center;gap:10px}
+  .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--purple-soft),var(--gold-dim));display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:15px;color:var(--text-primary);flex-shrink:0}
+  .convener-title h2{font-family:'Cinzel',serif;font-size:17px;color:var(--text-primary)}
+  .convener-title span{font-size:12px;color:var(--text-muted)}
+  .btn-add-song{background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0b0917;border:none;border-radius:var(--radius-sm);padding:9px 15px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px}
+  .btn-add-song:active{opacity:0.8}
+
+  .search-wrap{position:relative;margin-bottom:14px}
+  .search-wrap input{width:100%;background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius-sm);padding:11px 14px 11px 38px;color:var(--text-primary);font-family:'Lato',sans-serif;font-size:14px;outline:none}
+  .search-wrap input::placeholder{color:var(--text-muted)}
+  .s-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px}
+
+  .songs-grid{display:flex;flex-direction:column;gap:11px}
+  .song-card{background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius);padding:15px;animation:fadeUp 0.3s ease}
+  .song-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .song-info{flex:1}
+  .song-name{font-family:'Cinzel',serif;font-size:15px;color:var(--text-primary);font-weight:600;line-height:1.3;margin-bottom:3px}
+  .song-artist{font-size:13px;color:var(--purple-glow);margin-bottom:6px}
+  .song-scale{display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,0.1);border:1px solid var(--gold-dim);border-radius:5px;padding:3px 9px;font-size:12px;font-weight:700;color:var(--gold);letter-spacing:1px}
+  .song-actions{display:flex;gap:5px;flex-wrap:wrap;align-items:flex-start}
+  .btn-s{border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;border:1px solid}
+  .btn-sl{background:rgba(74,158,202,0.1);border-color:rgba(74,158,202,0.3);color:var(--blue)}
+  .btn-ed{background:var(--bg-elevated);border-color:var(--border-soft);color:var(--text-secondary)}
+  .btn-dl{background:rgba(224,92,92,0.1);border-color:rgba(224,92,92,0.2);color:var(--danger)}
+  .song-notes{margin-top:8px;background:var(--bg-elevated);border-left:3px solid var(--purple-soft);border-radius:0 6px 6px 0;padding:9px 12px;font-size:13px;color:var(--text-secondary);line-height:1.5;white-space:pre-wrap}
+  .notes-lbl{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted);margin-bottom:3px}
+  .empty-state{text-align:center;padding:44px 20px;color:var(--text-muted)}
+  .empty-state .icon{font-size:38px;margin-bottom:10px;opacity:0.5}
+  .empty-state p{font-size:14px;line-height:1.6}
+
+  /* SETLIST */
+  .setlist-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:10px}
+  .setlist-hdr h2{font-family:'Cinzel',serif;font-size:19px;color:var(--blue)}
+  .setlist-hdr p{font-size:12px;color:var(--text-muted);margin-top:2px}
+  .setlist-btns{display:flex;gap:8px}
+  .btn-sunday{background:linear-gradient(135deg,#1a4a6e,var(--blue));color:#fff;border:none;border-radius:var(--radius-sm);padding:9px 15px;font-family:'Cinzel',serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer}
+  .btn-clr{background:rgba(224,92,92,0.1);border:1px solid rgba(224,92,92,0.2);border-radius:var(--radius-sm);padding:9px 13px;font-size:13px;color:var(--danger);cursor:pointer}
+  .date-row{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+  .date-lbl{font-size:12px;color:var(--text-muted)}
+  .date-input{background:var(--bg-elevated);border:1px solid var(--border-soft);border-radius:6px;padding:6px 12px;color:var(--text-primary);font-family:'Lato',sans-serif;font-size:13px;outline:none}
+  .setlist-items{display:flex;flex-direction:column;gap:10px}
+  .sl-item{background:var(--bg-card);border:1px solid rgba(74,158,202,0.2);border-radius:var(--radius);padding:14px 15px;display:flex;align-items:center;gap:11px;animation:fadeUp 0.3s ease}
+  .sl-num{font-family:'Cinzel',serif;font-size:20px;color:var(--blue);opacity:0.45;min-width:26px;text-align:center}
+  .sl-info{flex:1}
+  .sl-name{font-family:'Cinzel',serif;font-size:15px;color:var(--text-primary);font-weight:600}
+  .sl-meta{font-size:12px;color:var(--text-muted);margin-top:3px}
+  .sl-key{display:inline-block;background:rgba(74,158,202,0.1);border:1px solid rgba(74,158,202,0.3);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;color:var(--blue);margin-left:6px}
+  .sl-note{font-size:12px;color:var(--text-muted);margin-top:5px}
+  .sl-reorder{display:flex;flex-direction:column;gap:1px}
+  .btn-ro{background:none;border:none;color:var(--text-muted);font-size:13px;cursor:pointer;padding:2px 5px;line-height:1}
+  .btn-ro:active{color:var(--gold)}
+  .btn-rm{background:none;border:none;color:var(--text-muted);font-size:17px;cursor:pointer;padding:3px}
+  .btn-rm:active{color:var(--danger)}
+
+  /* SUNDAY MODE */
+  #sundayMode{display:none;position:fixed;inset:0;z-index:500;background:#000;flex-direction:column;padding:max(env(safe-area-inset-top),20px) 22px max(env(safe-area-inset-bottom),20px)}
+  #sundayMode.open{display:flex}
+  .sun-hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:14px;border-bottom:1px solid rgba(201,168,76,0.2);margin-bottom:20px}
+  .sun-church{font-family:'Cinzel',serif;font-size:13px;color:var(--gold);letter-spacing:2px}
+  .sun-date{font-size:12px;color:var(--text-muted);margin-top:2px}
+  .btn-exit{background:none;border:1px solid var(--border-soft);border-radius:8px;padding:8px 14px;color:var(--text-secondary);font-size:13px;cursor:pointer}
+  .sun-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+  .sun-item{display:flex;align-items:flex-start;gap:14px;padding:18px;background:#111;border-radius:14px;border:1px solid #222}
+  .sun-num{font-family:'Cinzel',serif;font-size:30px;color:var(--gold);opacity:0.4;min-width:38px;line-height:1}
+  .sun-info{flex:1}
+  .sun-name{font-family:'Cinzel',serif;font-size:21px;color:#fff;font-weight:600;line-height:1.3;margin-bottom:5px}
+  .sun-artist{font-size:14px;color:var(--text-secondary);margin-bottom:8px}
+  .sun-key{display:inline-block;background:rgba(201,168,76,0.1);border:1px solid var(--gold-dim);border-radius:6px;padding:4px 14px;font-size:15px;font-weight:700;color:var(--gold);letter-spacing:2px}
+  .sun-notes{margin-top:10px;font-size:13px;color:var(--text-muted);line-height:1.6;white-space:pre-wrap;border-top:1px solid #222;padding-top:10px}
+
+  /* MODAL */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:200;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--bg-card);border:1px solid var(--border);border-radius:20px 20px 0 0;padding:26px 22px 40px;width:100%;max-width:600px;max-height:86vh;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:slideUp 0.3s ease}
+  .modal-handle{width:38px;height:4px;background:var(--text-muted);border-radius:2px;margin:0 auto 22px;opacity:0.4}
+  .modal-title{font-family:'Cinzel',serif;font-size:17px;color:var(--gold-light);margin-bottom:18px}
+  .fg{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+  .flbl{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted);font-weight:700}
+  .finput{background:var(--bg-elevated);border:1px solid var(--border-soft);border-radius:var(--radius-sm);padding:12px 13px;color:var(--text-primary);font-family:'Lato',sans-serif;font-size:15px;outline:none;width:100%;transition:border-color 0.2s}
+  .finput:focus{border-color:var(--gold-dim)}
+  .finput::placeholder{color:var(--text-muted)}
+  textarea.finput{resize:vertical;min-height:85px;line-height:1.5}
+  select.finput{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235c5480' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+  select.finput option{background:var(--bg-elevated)}
+  .modal-actions{display:flex;gap:10px;margin-top:22px}
+  .btn-cancel{flex:1;background:var(--bg-elevated);border:1px solid var(--border-soft);border-radius:var(--radius-sm);padding:13px;color:var(--text-secondary);font-family:'Lato',sans-serif;font-size:14px;cursor:pointer}
+  .btn-save{flex:2;background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:var(--radius-sm);padding:13px;color:#0b0917;font-family:'Cinzel',serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer}
+
+  .conf-modal{background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:26px 22px;width:calc(100% - 48px);max-width:340px;margin:auto;animation:fadeUp 0.25s ease}
+  .conf-modal h3{font-family:'Cinzel',serif;font-size:16px;color:var(--text-primary);margin-bottom:9px}
+  .conf-modal p{font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:18px}
+  .conf-actions{display:flex;gap:10px}
+  .btn-conf-del{flex:1;background:var(--danger);border:none;border-radius:var(--radius-sm);padding:12px;color:#fff;font-family:'Lato',sans-serif;font-size:14px;font-weight:700;cursor:pointer}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:11px 20px;font-size:13px;color:var(--text-primary);z-index:999;transition:transform 0.3s ease;white-space:nowrap;box-shadow:var(--shadow)}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .toast.success{border-color:var(--success);color:var(--success)}
+  .toast.error{border-color:var(--danger);color:var(--danger)}
+
+  @media(orientation:landscape) and (max-height:500px){
+    .login-box{padding:18px 24px;gap:12px}
+    .app-header{padding:8px 16px 0}
+    .header-top{margin-bottom:8px}
+    .modal{max-height:92vh;border-radius:14px}
+    .sun-name{font-size:17px}
+  }
+  @media(min-width:600px){.songs-grid{display:grid;grid-template-columns:1fr 1fr}.app-content{padding:22px}}
+  @media(min-width:900px){.songs-grid{grid-template-columns:1fr 1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loadingScreen" class="screen active">
+  <div class="loading-cross">✝</div>
+  <div class="loading-text">LOADING</div>
+  <div class="spinner"></div>
+  <div class="loading-sub" id="loadingSub">Connecting to database…</div>
+  <button class="btn-skip" id="skipBtn" onclick="enterGuest()">Continue without sync</button>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="screen">
+  <div class="login-box">
+    <div class="login-cross">✝</div>
+    <div class="login-title">
+      <h1>Christ Restoration Centre</h1>
+      <p>Worship Song Library</p>
+    </div>
+    <div class="divider"></div>
+    <div class="input-group">
+      <div class="ff"><input type="text" id="loginUser" placeholder="Username" autocomplete="off" autocapitalize="none"></div>
+      <div class="ff"><input type="password" id="loginPass" placeholder="Password"></div>
+      <div class="login-error" id="loginError">Incorrect username or password</div>
+      <div class="db-notice" id="dbNotice"></div>
+      <button class="btn-primary" onclick="doLogin()">SIGN IN</button>
+    </div>
+    <div class="guest-link">Just browsing? <span onclick="enterGuest()">Continue as Guest</span></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen" class="screen">
+  <div class="app-header">
+    <div class="header-top">
+      <div class="church-brand">
+        <span class="cross-small">✝</span>
+        <h1>Christ Restoration Centre</h1>
+        <p>Worship Song Library</p>
+      </div>
+      <div class="header-actions">
+        <span id="syncWrap"><span class="sync-dot warn"></span></span>
+        <span id="userBadge" class="badge-guest">Guest</span>
+        <button class="btn-icon" onclick="doLogout()">⏻</button>
+      </div>
+    </div>
+    <div class="tabs-container" id="tabsContainer"></div>
+  </div>
+  <div class="app-content" id="appContent"></div>
+</div>
+
+<!-- SUNDAY MODE -->
+<div id="sundayMode">
+  <div class="sun-hdr">
+    <div><div class="sun-church">✝ Christ Restoration Centre</div><div class="sun-date" id="sundayDate"></div></div>
+    <button class="btn-exit" onclick="closeSunday()">✕ Exit</button>
+  </div>
+  <div class="sun-list" id="sundayList"></div>
+</div>
+
+<!-- SONG MODAL -->
+<div class="modal-overlay" id="songModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle">Add Song</div>
+    <input type="hidden" id="editSongId"><input type="hidden" id="editConvId">
+    <div class="fg"><label class="flbl">Song Name</label><input type="text" class="finput" id="fName" placeholder="e.g. Way Maker"></div>
+    <div class="fg"><label class="flbl">Artist / Worship Band</label><input type="text" class="finput" id="fArtist" placeholder="e.g. Elevation Worship"></div>
+    <div class="fg"><label class="flbl">Scale / Key</label>
+      <select class="finput" id="fScale">
+        <option value="">Select key…</option>
+        <option>A</option><option>A#/Bb</option><option>B</option><option>C</option><option>C#/Db</option><option>D</option><option>D#/Eb</option><option>E</option><option>F</option><option>F#/Gb</option><option>G</option><option>G#/Ab</option><option>Am</option><option>Bm</option><option>Cm</option><option>Dm</option><option>Em</option><option>Fm</option><option>Gm</option>
+      </select>
+    </div>
+    <div class="fg"><label class="flbl">Notes (optional)</label><textarea class="finput" id="fNotes" placeholder="Chord progressions, tempo, special instructions…"></textarea></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal('songModal')">Cancel</button><button class="btn-save" onclick="saveSong()">SAVE SONG</button></div>
+  </div>
+</div>
+
+<!-- CONVENER MODAL -->
+<div class="modal-overlay" id="convModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add Convener</div>
+    <div class="fg"><label class="flbl">Convener Name</label><input type="text" class="finput" id="fConvName" placeholder="e.g. Pastor James"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal('convModal')">Cancel</button><button class="btn-save" onclick="saveConvener()">ADD CONVENER</button></div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal" style="align-items:center">
+  <div class="conf-modal">
+    <h3 id="confTitle">Confirm</h3><p id="confText">This cannot be undone.</p>
+    <div class="conf-actions"><button class="btn-cancel" onclick="closeModal('confirmModal')">Cancel</button><button class="btn-conf-del" id="confBtn">Confirm</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, deleteDoc, updateDoc, getDoc, writeBatch, enableIndexedDbPersistence }
+  from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+// ── Firebase init ──────────────────────────────────────────────
+const fbApp = initializeApp({
+  apiKey:"AIzaSyAC-EpX8i6ntCQXW13_2p34UzIg_3wA4KQ",
+  authDomain:"crc-worship.firebaseapp.com",
+  projectId:"crc-worship",
+  storageBucket:"crc-worship.firebasestorage.app",
+  messagingSenderId:"939324858403",
+  appId:"1:939324858403:web:5d68d66a43fb51a4cad196"
+});
+const db = getFirestore(fbApp);
+
+// Enable offline persistence (so it works even with bad signal)
+enableIndexedDbPersistence(db).catch(()=>{});
+
+// ── Credentials ────────────────────────────────────────────────
+const EDITORS = [{ u:'Edwinn', p:'CRC1' }, { u:'ChriscebianD', p:'CRC2' }];
+
+// ── State ──────────────────────────────────────────────────────
+const S = {
+  user:null, isEditor:false, activeTab:null, dbOk:false,
+  conveners:[], setlist:[], setlistDate:'',
+  searches:{}, unsubs:[], songCache:{}, songUnsubs:{}
+};
+
+// ── Default conveners ──────────────────────────────────────────
+const DEFAULTS = ['Philisia','Sebastian','Pst. Kogie','Pst. Hilton','Naren','Leon'];
+
+// ── Boot: try Firebase with 8s timeout, then fall to login ─────
+let bootDone = false;
+
+function markBootDone(dbSuccess) {
+  if (bootDone) return;
+  bootDone = true;
+  S.dbOk = dbSuccess;
+  if (!dbSuccess) {
+    el('dbNotice').style.display = 'block';
+    el('dbNotice').textContent = '⚠️ Offline mode – data will sync when connection is restored.';
+  }
+  show('loginScreen');
+}
+
+// Show skip button after 4s
+setTimeout(() => { el('skipBtn').classList.add('visible'); }, 4000);
+
+async function boot() {
+  try {
+    el('loadingSub').textContent = 'Connecting to database…';
+
+    // Race: Firebase setup vs 8s timeout
+    await Promise.race([
+      setupFirestore(),
+      new Promise((_,r) => setTimeout(() => r(new Error('timeout')), 8000))
+    ]);
+
+    markBootDone(true);
+  } catch(e) {
+    console.warn('Boot failed:', e.message);
+    el('loadingSub').textContent = 'Could not reach database.';
+    markBootDone(false);
+  }
+}
+
+async function setupFirestore() {
+  const metaRef = doc(db, 'meta', 'conveners');
+  const snap = await getDoc(metaRef);
+  if (!snap.exists()) {
+    const list = DEFAULTS.map((name,i) => ({ id: slug(name), name, order: i }));
+    await setDoc(metaRef, { list });
+  }
+}
+
+boot();
+
+// ── Auth ───────────────────────────────────────────────────────
+window.doLogin = () => {
+  const u = v('loginUser'), p = v('loginPass');
+  const match = EDITORS.find(e => e.u===u && e.p===p);
+  if (match) { S.user=match.u; S.isEditor=true; el('loginError').style.display='none'; launch(); }
+  else el('loginError').style.display='block';
+};
+
+window.enterGuest = () => { S.user=null; S.isEditor=false; markBootDone(false); launch(); };
+
+window.doLogout = () => {
+  S.unsubs.forEach(u=>u());
+  Object.values(S.songUnsubs).forEach(u=>u());
+  S.unsubs=[]; S.songUnsubs={}; S.songCache={};
+  S.user=null; S.isEditor=false;
+  show('loginScreen');
+  el('loginUser').value=''; el('loginPass').value='';
+};
+
+el('loginPass').addEventListener('keydown', e => { if(e.key==='Enter') window.doLogin(); });
+
+// ── Launch app ─────────────────────────────────────────────────
+function launch() {
+  show('appScreen');
+  const badge = el('userBadge');
+  if (S.isEditor) { badge.className='badge-editor'; badge.textContent=S.user; }
+  else { badge.className='badge-guest'; badge.textContent='Guest'; }
+
+  // Listen to conveners
+  const u1 = onSnapshot(doc(db,'meta','conveners'), snap => {
+    syncDot(true);
+    if (!snap.exists()) {
+      // Seed if missing
+      const list = DEFAULTS.map((name,i)=>({id:slug(name),name,order:i}));
+      setDoc(doc(db,'meta','conveners'),{list});
+      return;
+    }
+    S.conveners = snap.data().list || [];
+    rebuildTabs();
+  }, err => {
+    console.warn('Conveners listener error:', err);
+    syncDot(false);
+    // Use defaults if can't reach DB
+    if (!S.conveners.length) {
+      S.conveners = DEFAULTS.map((name,i)=>({id:slug(name),name,order:i}));
+      rebuildTabs();
+    }
+  });
+
+  // Listen to setlist
+  const u2 = onSnapshot(doc(db,'setlist','current'), snap => {
+    S.setlist = snap.exists() ? (snap.data().items||[]) : [];
+    S.setlistDate = snap.exists() ? (snap.data().date||'') : '';
+    refreshSetlistUI();
+  }, ()=>{});
+
+  S.unsubs.push(u1, u2);
+}
+
+// ── Tabs ───────────────────────────────────────────────────────
+function rebuildTabs() {
+  if (!S.activeTab || (!S.conveners.find(c=>c.id===S.activeTab) && S.activeTab!=='setlist'))
+    S.activeTab = S.conveners[0]?.id || 'setlist';
+
+  el('tabsContainer').innerHTML='';
+  el('appContent').innerHTML='';
+
+  S.conveners.forEach(c => {
+    addTab(c.id, c.name, false);
+    addPanel(c.id, convenerHTML(c));
+    listenSongs(c.id);
+    const si = el('srch-'+c.id);
+    if (si) si.addEventListener('input', e => { S.searches[c.id]=e.target.value.toLowerCase(); refreshSongsUI(c.id); });
+  });
+
+  addTab('setlist','📋 Setlist', true);
+  addPanel('setlist', `<div id="slInner">${slHTML()}</div>`);
+
+  if (S.isEditor) {
+    const btn = mk('button','tab-btn t-add');
+    btn.textContent='＋'; btn.title='Add Convener';
+    btn.onclick=()=>{ el('fConvName').value=''; openModal('convModal'); };
+    el('tabsContainer').appendChild(btn);
+  }
+
+  activateTab(S.activeTab);
+}
+
+function addTab(id, label, isSL) {
+  const btn = mk('button','tab-btn'+(isSL?' t-setlist':''));
+  btn.textContent=label; btn.id='tab-'+id;
+  btn.onclick=()=>switchTab(id);
+  el('tabsContainer').appendChild(btn);
+}
+
+function addPanel(id, html) {
+  const p = mk('div','tab-panel');
+  p.id='panel-'+id; p.innerHTML=html;
+  el('appContent').appendChild(p);
+}
+
+function switchTab(id) {
+  S.activeTab=id; S.searches={};
+  activateTab(id);
+  el('appContent').scrollTop=0;
+}
+
+function activateTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  el('tab-'+id)?.classList.add('active');
+  el('panel-'+id)?.classList.add('active');
+}
+
+// ── Songs realtime ─────────────────────────────────────────────
+function listenSongs(cid) {
+  if (S.songUnsubs[cid]) return;
+  const unsub = onSnapshot(collection(db,'conveners',cid,'songs'), snap => {
+    syncDot(true);
+    const songs=[];
+    snap.forEach(d=>songs.push({id:d.id,...d.data()}));
+    songs.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+    S.songCache[cid]=songs;
+    refreshSongsUI(cid);
+    const sp=el('panel-'+cid)?.querySelector('.convener-title span');
+    if(sp) sp.textContent=songs.length+' song'+(songs.length!==1?'s':'');
+  }, ()=>syncDot(false));
+  S.songUnsubs[cid]=unsub;
+}
+
+function refreshSongsUI(cid) {
+  const grid=el('songs-'+cid);
+  if(!grid) return;
+  const songs=S.songCache[cid]||[];
+  const q=S.searches[cid]||'';
+  const list=q?songs.filter(s=>(s.name||'').toLowerCase().includes(q)||(s.artist||'').toLowerCase().includes(q)||(s.scale||'').toLowerCase().includes(q)):songs;
+  if(!list.length){
+    grid.innerHTML=q
+      ?`<div class="empty-state"><div class="icon">🔍</div><p>No songs match "<strong>${esc(q)}</strong>"</p></div>`
+      :`<div class="empty-state"><div class="icon">🎵</div><p>${S.isEditor?'No songs yet.<br>Tap <strong>+ Add Song</strong> to get started.':'No songs added yet.'}</p></div>`;
+    return;
+  }
+  grid.innerHTML=list.map(s=>songCardHTML(s,cid)).join('');
+}
+
+// ── HTML builders ──────────────────────────────────────────────
+function convenerHTML(c) {
+  const ini=c.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+  return `
+    <div class="convener-header">
+      <div class="convener-title">
+        <div class="avatar">${ini}</div>
+        <div><h2>${esc(c.name)}</h2><span>Loading…</span></div>
+      </div>
+      ${S.isEditor?`<button class="btn-add-song" onclick="openAddSong('${c.id}')">＋ Add Song</button>`:''}
+    </div>
+    <div class="search-wrap"><span class="s-icon">🔍</span><input type="text" id="srch-${c.id}" placeholder="Search songs…"></div>
+    <div class="songs-grid" id="songs-${c.id}"><div class="empty-state"><div class="spinner" style="margin:0 auto"></div></div></div>`;
+}
+
+function songCardHTML(s, cid) {
+  const slBtn=`<button class="btn-s btn-sl" onclick="addToSetlist('${s.id}','${cid}')">＋ Setlist</button>`;
+  const edBtns=S.isEditor?`<button class="btn-s btn-ed" onclick="openEditSong('${cid}','${s.id}')">✏️</button><button class="btn-s btn-dl" onclick="confirmDel('${cid}','${s.id}','${esc(s.name)}')">🗑</button>`:'';
+  const notes=s.notes?`<div class="song-notes"><div class="notes-lbl">Notes</div>${esc(s.notes)}</div>`:'';
+  return `<div class="song-card"><div class="song-card-top"><div class="song-info"><div class="song-name">${esc(s.name)}</div><div class="song-artist">${esc(s.artist||'')}</div><div class="song-scale">🎵 ${esc(s.scale||'')}</div></div><div class="song-actions">${slBtn}${edBtns}</div></div>${notes}</div>`;
+}
+
+function slHTML() {
+  const items=S.setlist, dateVal=S.setlistDate||'';
+  const sunBtn=items.length?`<button class="btn-sunday" onclick="openSunday()">⛪ Sunday Mode</button>`:'';
+  const clrBtn=S.isEditor&&items.length?`<button class="btn-clr" onclick="confirmClear()">🗑 Clear</button>`:'';
+  const dateField=S.isEditor
+    ?`<input type="date" class="date-input" id="slDate" value="${dateVal}" onchange="updateDate(this.value)">`
+    :`<span class="date-input" style="cursor:default">${dateVal||'Not set'}</span>`;
+  const body=!items.length
+    ?`<div class="empty-state"><div class="icon">📋</div><p>${S.isEditor?'Add songs from any convener tab using <strong>＋ Setlist</strong>.':'Check back closer to Sunday.'}</p></div>`
+    :items.map((item,i)=>`
+      <div class="sl-item">
+        ${S.isEditor?`<div class="sl-reorder"><button class="btn-ro" onclick="moveItem(${i},-1)">▲</button><button class="btn-ro" onclick="moveItem(${i},1)">▼</button></div>`:''}
+        <div class="sl-num">${i+1}</div>
+        <div class="sl-info">
+          <div class="sl-name">${esc(item.name)}</div>
+          <div class="sl-meta">${esc(item.artist||'')} <span class="sl-key">${esc(item.scale||'')}</span></div>
+          ${item.notes?`<div class="sl-note">${esc(item.notes)}</div>`:''}
+        </div>
+        ${S.isEditor?`<button class="btn-rm" onclick="removeItem(${i})">✕</button>`:''}
+      </div>`).join('');
+  return `
+    <div class="setlist-hdr"><div><h2>📋 Sunday Setlist</h2><p>Songs for this Sunday's service</p></div><div class="setlist-btns">${sunBtn}${clrBtn}</div></div>
+    <div class="date-row"><span class="date-lbl">Service date:</span>${dateField}</div>
+    <div class="setlist-items">${body}</div>`;
+}
+
+function refreshSetlistUI() { const i=el('slInner'); if(i) i.innerHTML=slHTML(); }
+
+// ── Setlist actions ────────────────────────────────────────────
+window.addToSetlist = (sid,cid) => {
+  const song=(S.songCache[cid]||[]).find(s=>s.id===sid);
+  if(!song) return;
+  if(S.setlist.find(s=>s.songId===sid)){toast('Already in setlist','error');return;}
+  saveSetlist([...S.setlist,{songId:sid,cid,name:song.name,artist:song.artist||'',scale:song.scale||'',notes:song.notes||''}],S.setlistDate);
+  toast(`"${song.name}" added to setlist ✓`,'success');
+};
+window.removeItem = i => saveSetlist(S.setlist.filter((_,x)=>x!==i),S.setlistDate);
+window.moveItem = (i,dir) => {
+  const l=[...S.setlist],ni=i+dir;
+  if(ni<0||ni>=l.length) return;
+  [l[i],l[ni]]=[l[ni],l[i]]; saveSetlist(l,S.setlistDate);
+};
+window.updateDate = val => saveSetlist(S.setlist,val);
+window.confirmClear = () => {
+  el('confTitle').textContent='Clear Setlist?';
+  el('confText').textContent='All songs will be removed from the setlist.';
+  el('confBtn').textContent='Clear All';
+  el('confBtn').onclick=()=>{ saveSetlist([],S.setlistDate); closeModal('confirmModal'); toast('Setlist cleared','error'); };
+  openModal('confirmModal');
+};
+async function saveSetlist(items,date) {
+  try { await setDoc(doc(db,'setlist','current'),{items,date:date||''}); }
+  catch(e){ toast('Could not save setlist','error'); }
+}
+
+// ── Sunday mode ────────────────────────────────────────────────
+window.openSunday = () => {
+  el('sundayMode').classList.add('open');
+  el('sundayDate').textContent=S.setlistDate?fmtDate(S.setlistDate):'Service';
+  el('sundayList').innerHTML=S.setlist.map((item,i)=>`
+    <div class="sun-item">
+      <div class="sun-num">${i+1}</div>
+      <div class="sun-info">
+        <div class="sun-name">${esc(item.name)}</div>
+        <div class="sun-artist">${esc(item.artist)}</div>
+        <div class="sun-key">🎵 ${esc(item.scale)}</div>
+        ${item.notes?`<div class="sun-notes">${esc(item.notes)}</div>`:''}
+      </div>
+    </div>`).join('');
+  document.body.style.overflow='hidden';
+};
+window.closeSunday = () => { el('sundayMode').classList.remove('open'); document.body.style.overflow=''; };
+
+// ── Song CRUD ──────────────────────────────────────────────────
+window.openAddSong = cid => {
+  el('modalTitle').textContent='Add Song';
+  el('editSongId').value=''; el('editConvId').value=cid;
+  el('fName').value=''; el('fArtist').value=''; el('fScale').value=''; el('fNotes').value='';
+  openModal('songModal');
+};
+window.openEditSong = (cid,sid) => {
+  const song=(S.songCache[cid]||[]).find(s=>s.id===sid);
+  if(!song) return;
+  el('modalTitle').textContent='Edit Song';
+  el('editSongId').value=sid; el('editConvId').value=cid;
+  el('fName').value=song.name||''; el('fArtist').value=song.artist||''; el('fScale').value=song.scale||''; el('fNotes').value=song.notes||'';
+  openModal('songModal');
+};
+window.saveSong = async () => {
+  const name=v('fName'),artist=v('fArtist'),scale=v('fScale'),notes=v('fNotes');
+  const cid=v('editConvId'),sid=v('editSongId');
+  if(!name){toast('Song name is required','error');return;}
+  if(!scale){toast('Please select a key/scale','error');return;}
+  const data={name,artist,scale,notes,updatedAt:Date.now()};
+  try {
+    if(sid){
+      await updateDoc(doc(db,'conveners',cid,'songs',sid),data);
+      const newSl=S.setlist.map(s=>s.songId===sid?{...s,name,artist,scale,notes}:s);
+      if(JSON.stringify(newSl)!==JSON.stringify(S.setlist)) await saveSetlist(newSl,S.setlistDate);
+      toast('Song updated ✓','success');
+    } else {
+      await addDoc(collection(db,'conveners',cid,'songs'),{...data,createdAt:Date.now()});
+      toast('Song added ✓','success');
+    }
+    closeModal('songModal');
+  } catch(e){ toast('Error saving song. Check connection.','error'); console.error(e); }
+};
+
+let pd=null;
+window.confirmDel = (cid,sid,name) => {
+  pd={cid,sid};
+  el('confTitle').textContent='Delete Song?';
+  el('confText').textContent=`Delete "${name}"? This cannot be undone.`;
+  el('confBtn').textContent='Delete';
+  el('confBtn').onclick=async()=>{
+    if(!pd) return;
+    try {
+      await deleteDoc(doc(db,'conveners',pd.cid,'songs',pd.sid));
+      const newSl=S.setlist.filter(s=>s.songId!==pd.sid);
+      if(newSl.length!==S.setlist.length) await saveSetlist(newSl,S.setlistDate);
+      toast('Song deleted','error');
+    } catch(e){ toast('Error deleting','error'); }
+    closeModal('confirmModal'); pd=null;
+  };
+  openModal('confirmModal');
+};
+
+// ── Convener CRUD ──────────────────────────────────────────────
+window.saveConvener = async () => {
+  const name=v('fConvName');
+  if(!name){toast('Enter a name','error');return;}
+  const id=slug(name)+'-'+Math.random().toString(36).substring(2,6);
+  try {
+    await setDoc(doc(db,'meta','conveners'),{list:[...S.conveners,{id,name,order:S.conveners.length}]});
+    S.activeTab=id; closeModal('convModal'); toast(`${name} added ✓`,'success');
+  } catch(e){ toast('Error adding convener','error'); }
+};
+
+// ── Modal helpers ──────────────────────────────────────────────
+window.openModal = id => { el(id).classList.add('open'); document.body.style.overflow='hidden'; };
+window.closeModal = id => { el(id).classList.remove('open'); document.body.style.overflow=''; };
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)window.closeModal(o.id);}));
+
+// ── Helpers ────────────────────────────────────────────────────
+function syncDot(on) { el('syncWrap').innerHTML=`<span class="sync-dot${on?'':' off'}"></span>`; }
+function toast(msg,type='') {
+  const t=el('toast'); t.textContent=msg; t.className='toast show'+(type?' '+type:'');
+  setTimeout(()=>t.className='toast',2800);
+}
+function el(id){ return document.getElementById(id); }
+function v(id){ return (el(id)?.value||'').trim(); }
+function mk(tag,cls){ const e=document.createElement(tag); if(cls)e.className=cls; return e; }
+function esc(s){ return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''; }
+function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+function fmtDate(d){ try{ return new Date(d+'T00:00:00').toLocaleDateString('en-ZA',{weekday:'long',year:'numeric',month:'long',day:'numeric'}); }catch{return d;} }
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); el(id).classList.add('active'); }
+</script>
+</body>
+</html>
