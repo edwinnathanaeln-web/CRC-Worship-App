@@ -158,7 +158,7 @@
   .sun-notes{margin-top:10px;font-size:13px;color:var(--text-muted);line-height:1.6;white-space:pre-wrap;border-top:1px solid #222;padding-top:10px}
 
   /* MODAL */
-  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:200;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:700;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
   .modal-overlay.open{display:flex}
   .modal{background:var(--bg-card);border:1px solid var(--border);border-radius:20px 20px 0 0;padding:26px 22px 40px;width:100%;max-width:600px;max-height:86vh;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:slideUp 0.3s ease}
   .modal-handle{width:38px;height:4px;background:var(--text-muted);border-radius:2px;margin:0 auto 22px;opacity:0.4}
@@ -185,6 +185,49 @@
   .toast.show{transform:translateX(-50%) translateY(0)}
   .toast.success{border-color:var(--success);color:var(--success)}
   .toast.error{border-color:var(--danger);color:var(--danger)}
+
+  /* STRUCTURE EDITOR */
+  .struct-editor{display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
+  .struct-section{background:var(--bg-elevated);border:1px solid var(--border-soft);border-radius:10px;padding:10px}
+  .struct-section-hdr{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+  .struct-label-input{flex:1}
+  .struct-move{background:none;border:1px solid var(--border-soft);border-radius:6px;color:var(--text-secondary);font-size:12px;cursor:pointer;padding:6px 8px}
+  .struct-move:disabled{opacity:0.25}
+  .struct-remove{background:none;border:none;color:var(--danger);font-size:15px;cursor:pointer;padding:4px 6px}
+  .struct-add-btn{background:none;border:1px dashed var(--border-soft);border-radius:var(--radius-sm);padding:11px;color:var(--purple-glow);font-family:'Lato',sans-serif;font-size:13px;cursor:pointer;width:100%}
+  .struct-hint{font-size:11px;color:var(--text-muted);line-height:1.5;margin-top:2px}
+
+  /* CHORD CHART RENDERING */
+  .chart-section{margin-bottom:20px}
+  .chart-section-title{font-family:'Cinzel',serif;color:var(--purple-glow);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;border-bottom:1px solid var(--border-soft);padding-bottom:6px}
+  .chart-lyrics{color:var(--text-primary)}
+  .cline{font-size:15px;line-height:2.6;margin-bottom:2px}
+  .cword{position:relative;display:inline-block;padding-top:15px}
+  .cword .chord{position:absolute;top:0;left:0;color:var(--gold);font-size:12px;font-weight:700;white-space:nowrap;font-family:'Lato',sans-serif}
+
+  /* LIVE BANNER */
+  .live-banner{position:fixed;left:12px;right:12px;bottom:16px;z-index:150;background:linear-gradient(135deg,#7a1f1f,var(--danger));border-radius:12px;padding:12px 16px;display:none;align-items:center;gap:10px;box-shadow:0 6px 24px rgba(224,92,92,0.4);cursor:pointer;animation:fadeUp 0.3s ease}
+  .live-banner .dot{width:9px;height:9px;border-radius:50%;background:#fff;flex-shrink:0;animation:pulse 1.2s infinite}
+  .live-banner-text{flex:1;color:#fff;font-size:12px;line-height:1.5}
+  .live-banner-text b{display:block;font-family:'Cinzel',serif;font-size:12px;letter-spacing:1px}
+
+  /* LIVE MODE */
+  #liveMode{display:none;position:fixed;inset:0;z-index:600;background:#000;flex-direction:column;padding:max(env(safe-area-inset-top),20px) 20px max(env(safe-area-inset-bottom),20px)}
+  #liveMode.open{display:flex}
+  .lv-hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid rgba(201,168,76,0.2);margin-bottom:10px}
+  .lv-song{font-family:'Cinzel',serif;font-size:13px;color:var(--gold);letter-spacing:1px}
+  .lv-dots{display:flex;justify-content:center;gap:6px;margin:6px 0 4px}
+  .lv-dot{width:7px;height:7px;border-radius:50%;background:#2a2a2a}
+  .lv-dot.active{background:var(--gold)}
+  .lv-section-label{font-family:'Cinzel',serif;font-size:26px;color:#fff;text-align:center;margin:8px 0 14px;letter-spacing:1px}
+  .lv-chart{flex:1;overflow-y:auto;font-size:19px;line-height:2.8;padding:6px 2px;-webkit-overflow-scrolling:touch}
+  .lv-next{background:#111;border:1px solid #222;border-radius:12px;padding:11px 14px;margin-top:10px;font-size:13px;color:var(--text-muted);text-align:center}
+  .lv-next b{color:var(--purple-glow)}
+  .lv-controls{display:flex;gap:10px;margin-top:14px}
+  .lv-btn{flex:1;background:var(--bg-elevated);border:1px solid var(--border-soft);border-radius:12px;padding:18px;color:#fff;font-family:'Cinzel',serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer}
+  .lv-btn.primary{background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0b0917}
+  .lv-btn:disabled{opacity:0.25}
+  .btn-live{background:rgba(224,92,92,0.12);border-color:rgba(224,92,92,0.3);color:var(--danger)}
 
   @media(orientation:landscape) and (max-height:500px){
     .login-box{padding:18px 24px;gap:12px}
@@ -272,6 +315,12 @@
       </select>
     </div>
     <div class="fg"><label class="flbl">Notes (optional)</label><textarea class="finput" id="fNotes" placeholder="Chord progressions, tempo, special instructions…"></textarea></div>
+    <div class="fg">
+      <label class="flbl">Song Structure &amp; Chords (optional)</label>
+      <div class="struct-editor" id="structEditor"></div>
+      <button type="button" class="struct-add-btn" onclick="addStructSection()">＋ Add Section (Verse, Chorus, Bridge…)</button>
+      <div class="struct-hint">Wrap each chord in brackets right before the word it plays on, e.g. <strong>[G]Amazing [C]grace how [G]sweet the [D]sound</strong>. One line per lyric line.</div>
+    </div>
     <div class="modal-actions"><button class="btn-cancel" onclick="closeModal('songModal')">Cancel</button><button class="btn-save" onclick="saveSong()">SAVE SONG</button></div>
   </div>
 </div>
@@ -292,6 +341,35 @@
     <h3 id="confTitle">Confirm</h3><p id="confText">This cannot be undone.</p>
     <div class="conf-actions"><button class="btn-cancel" onclick="closeModal('confirmModal')">Cancel</button><button class="btn-conf-del" id="confBtn">Confirm</button></div>
   </div>
+</div>
+
+<!-- CHART MODAL (read-only chord chart) -->
+<div class="modal-overlay" id="chartModal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="chartTitle">Song Chart</div>
+    <div id="chartBody"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal('chartModal')">Close</button></div>
+  </div>
+</div>
+
+<!-- LIVE BANNER (shown app-wide while a live session is running) -->
+<div class="live-banner" id="liveBanner" onclick="openLiveFollow()">
+  <span class="dot"></span>
+  <div class="live-banner-text"><b>🔴 LIVE NOW</b><span id="liveBannerText"></span></div>
+</div>
+
+<!-- LIVE MODE (leader-controlled section sync) -->
+<div id="liveMode">
+  <div class="lv-hdr">
+    <div class="lv-song" id="lvSongName"></div>
+    <button class="btn-exit" onclick="exitLiveMode()">✕ Exit</button>
+  </div>
+  <div class="lv-dots" id="lvDots"></div>
+  <div class="lv-section-label" id="lvSectionLabel"></div>
+  <div class="lv-chart" id="lvChart"></div>
+  <div class="lv-next" id="lvNext"></div>
+  <div class="lv-controls" id="lvControls"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -322,7 +400,8 @@ const EDITORS = [{ u:'Edwinn', p:'CRC1' }, { u:'ChriscebianD', p:'CRC2' }];
 const S = {
   user:null, isEditor:false, activeTab:null, dbOk:false,
   conveners:[], setlist:[], setlistDate:'',
-  searches:{}, unsubs:[], songCache:{}, songUnsubs:{}
+  searches:{}, unsubs:[], songCache:{}, songUnsubs:{},
+  editStruct:[], live:{active:false}
 };
 
 // ── Default conveners ──────────────────────────────────────────
@@ -388,7 +467,8 @@ window.doLogout = () => {
   S.unsubs.forEach(u=>u());
   Object.values(S.songUnsubs).forEach(u=>u());
   S.unsubs=[]; S.songUnsubs={}; S.songCache={};
-  S.user=null; S.isEditor=false;
+  S.user=null; S.isEditor=false; S.live={active:false};
+  el('liveMode').classList.remove('open'); el('liveBanner').style.display='none';
   show('loginScreen');
   el('loginUser').value=''; el('loginPass').value='';
 };
@@ -430,7 +510,22 @@ function launch() {
     refreshSetlistUI();
   }, ()=>{});
 
-  S.unsubs.push(u1, u2);
+  // Listen to live session (band sync)
+  const u3 = onSnapshot(doc(db,'liveSession','current'), snap => {
+    if (!snap.exists() || !snap.data().active) {
+      S.live = {active:false};
+      el('liveBanner').style.display='none';
+      if (el('liveMode').classList.contains('open') && !S.isEditor) {
+        el('liveMode').classList.remove('open'); document.body.style.overflow='';
+      }
+      return;
+    }
+    S.live = {active:true, ...snap.data()};
+    updateLiveBanner();
+    if (el('liveMode').classList.contains('open')) renderLiveMode();
+  }, ()=>{});
+
+  S.unsubs.push(u1, u2, u3);
 }
 
 // ── Tabs ───────────────────────────────────────────────────────
@@ -536,9 +631,10 @@ function convenerHTML(c) {
 
 function songCardHTML(s, cid) {
   const slBtn=`<button class="btn-s btn-sl" onclick="addToSetlist('${s.id}','${cid}')">＋ Setlist</button>`;
+  const chartBtn=`<button class="btn-s btn-ed" onclick="openSongChart('${cid}','${s.id}')">🎼 Chart</button>`;
   const edBtns=S.isEditor?`<button class="btn-s btn-ed" onclick="openEditSong('${cid}','${s.id}')">✏️</button><button class="btn-s btn-dl" onclick="confirmDel('${cid}','${s.id}','${esc(s.name)}')">🗑</button>`:'';
   const notes=s.notes?`<div class="song-notes"><div class="notes-lbl">Notes</div>${esc(s.notes)}</div>`:'';
-  return `<div class="song-card"><div class="song-card-top"><div class="song-info"><div class="song-name">${esc(s.name)}</div><div class="song-artist">${esc(s.artist||'')}</div><div class="song-scale">🎵 ${esc(s.scale||'')}</div></div><div class="song-actions">${slBtn}${edBtns}</div></div>${notes}</div>`;
+  return `<div class="song-card"><div class="song-card-top"><div class="song-info"><div class="song-name">${esc(s.name)}</div><div class="song-artist">${esc(s.artist||'')}</div><div class="song-scale">🎵 ${esc(s.scale||'')}</div></div><div class="song-actions">${slBtn}${chartBtn}${edBtns}</div></div>${notes}</div>`;
 }
 
 function slHTML() {
@@ -558,6 +654,7 @@ function slHTML() {
           <div class="sl-name">${esc(item.name)}</div>
           <div class="sl-meta">${esc(item.artist||'')} <span class="sl-key">${esc(item.scale||'')}</span></div>
           ${item.notes?`<div class="sl-note">${esc(item.notes)}</div>`:''}
+          <div style="margin-top:6px"><button class="btn-s btn-ed" onclick="openSetlistChart(${i})">🎼 Chart</button></div>
         </div>
         ${S.isEditor?`<button class="btn-rm" onclick="removeItem(${i})">✕</button>`:''}
       </div>`).join('');
@@ -574,7 +671,7 @@ window.addToSetlist = (sid,cid) => {
   const song=(S.songCache[cid]||[]).find(s=>s.id===sid);
   if(!song) return;
   if(S.setlist.find(s=>s.songId===sid)){toast('Already in setlist','error');return;}
-  saveSetlist([...S.setlist,{songId:sid,cid,name:song.name,artist:song.artist||'',scale:song.scale||'',notes:song.notes||''}],S.setlistDate);
+  saveSetlist([...S.setlist,{songId:sid,cid,name:song.name,artist:song.artist||'',scale:song.scale||'',notes:song.notes||'',structure:song.structure||[]}],S.setlistDate);
   toast(`"${song.name}" added to setlist ✓`,'success');
 };
 window.removeItem = i => saveSetlist(S.setlist.filter((_,x)=>x!==i),S.setlistDate);
@@ -608,6 +705,10 @@ window.openSunday = () => {
         <div class="sun-artist">${esc(item.artist)}</div>
         <div class="sun-key">🎵 ${esc(item.scale)}</div>
         ${item.notes?`<div class="sun-notes">${esc(item.notes)}</div>`:''}
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-s btn-ed" onclick="openSetlistChart(${i})">🎼 Chart</button>
+          ${S.isEditor&&item.structure&&item.structure.length?`<button class="btn-s btn-live" onclick="goLive(${i})">🔴 Go Live</button>`:''}
+        </div>
       </div>
     </div>`).join('');
   document.body.style.overflow='hidden';
@@ -619,6 +720,7 @@ window.openAddSong = cid => {
   el('modalTitle').textContent='Add Song';
   el('editSongId').value=''; el('editConvId').value=cid;
   el('fName').value=''; el('fArtist').value=''; el('fScale').value=''; el('fNotes').value='';
+  S.editStruct=[]; renderStructEditor();
   openModal('songModal');
 };
 window.openEditSong = (cid,sid) => {
@@ -627,6 +729,8 @@ window.openEditSong = (cid,sid) => {
   el('modalTitle').textContent='Edit Song';
   el('editSongId').value=sid; el('editConvId').value=cid;
   el('fName').value=song.name||''; el('fArtist').value=song.artist||''; el('fScale').value=song.scale||''; el('fNotes').value=song.notes||'';
+  S.editStruct=(song.structure||[]).map(sec=>({label:sec.label||'',chordpro:sec.chordpro||''}));
+  renderStructEditor();
   openModal('songModal');
 };
 window.saveSong = async () => {
@@ -634,11 +738,12 @@ window.saveSong = async () => {
   const cid=v('editConvId'),sid=v('editSongId');
   if(!name){toast('Song name is required','error');return;}
   if(!scale){toast('Please select a key/scale','error');return;}
-  const data={name,artist,scale,notes,updatedAt:Date.now()};
+  const structure=S.editStruct.filter(sec=>sec.label.trim()||sec.chordpro.trim());
+  const data={name,artist,scale,notes,structure,updatedAt:Date.now()};
   try {
     if(sid){
       await updateDoc(doc(db,'conveners',cid,'songs',sid),data);
-      const newSl=S.setlist.map(s=>s.songId===sid?{...s,name,artist,scale,notes}:s);
+      const newSl=S.setlist.map(s=>s.songId===sid?{...s,name,artist,scale,notes,structure}:s);
       if(JSON.stringify(newSl)!==JSON.stringify(S.setlist)) await saveSetlist(newSl,S.setlistDate);
       toast('Song updated ✓','success');
     } else {
@@ -647,6 +752,138 @@ window.saveSong = async () => {
     }
     closeModal('songModal');
   } catch(e){ toast('Error saving song. Check connection.','error'); console.error(e); }
+};
+
+// ── Structure editor ────────────────────────────────────────────
+function renderStructEditor() {
+  const c=el('structEditor');
+  if(!S.editStruct.length){
+    c.innerHTML=`<div style="font-size:12px;color:var(--text-muted);padding:6px 2px">No sections yet. Add Verse 1, Chorus, Bridge, etc. below.</div>`;
+    return;
+  }
+  c.innerHTML=S.editStruct.map((sec,i)=>`
+    <div class="struct-section">
+      <div class="struct-section-hdr">
+        <input type="text" class="finput struct-label-input" value="${esc(sec.label)}" placeholder="e.g. Verse 1" oninput="updateStructLabel(${i},this.value)">
+        <button type="button" class="struct-move" ${i===0?'disabled':''} onclick="moveStructSection(${i},-1)">▲</button>
+        <button type="button" class="struct-move" ${i===S.editStruct.length-1?'disabled':''} onclick="moveStructSection(${i},1)">▼</button>
+        <button type="button" class="struct-remove" onclick="removeStructSection(${i})">🗑</button>
+      </div>
+      <textarea class="finput" rows="3" placeholder="[G]Amazing [C]grace how [G]sweet the [D]sound" oninput="updateStructChordpro(${i},this.value)">${esc(sec.chordpro)}</textarea>
+    </div>`).join('');
+}
+window.addStructSection = () => { S.editStruct.push({label:'',chordpro:''}); renderStructEditor(); };
+window.removeStructSection = i => { S.editStruct.splice(i,1); renderStructEditor(); };
+window.moveStructSection = (i,dir) => {
+  const ni=i+dir; if(ni<0||ni>=S.editStruct.length) return;
+  [S.editStruct[i],S.editStruct[ni]]=[S.editStruct[ni],S.editStruct[i]];
+  renderStructEditor();
+};
+window.updateStructLabel = (i,val) => { S.editStruct[i].label=val; };
+window.updateStructChordpro = (i,val) => { S.editStruct[i].chordpro=val; };
+
+// ── Chord chart rendering (ChordPro-style [Chord]lyric) ─────────
+function renderChordProLine(line) {
+  const parts=line.split(/(\[[^\]]+\])/g).filter(p=>p!=='');
+  let html='', pendingChord='';
+  parts.forEach(p=>{
+    const m=p.match(/^\[([^\]]+)\]$/);
+    if(m){ pendingChord=m[1]; return; }
+    const words=p.split(/(\s+)/).filter(w=>w!=='');
+    words.forEach(w=>{
+      if(/^\s+$/.test(w)){ html+=w; return; }
+      if(pendingChord){ html+=`<span class="cword"><span class="chord">${esc(pendingChord)}</span>${esc(w)}</span>`; pendingChord=''; }
+      else html+=`<span class="cword">${esc(w)}</span>`;
+    });
+  });
+  if(pendingChord) html+=`<span class="cword"><span class="chord">${esc(pendingChord)}</span></span>`;
+  return html||'&nbsp;';
+}
+function renderChordProBlock(text) {
+  return (text||'').split('\n').map(l=>`<div class="cline">${renderChordProLine(l)}</div>`).join('');
+}
+
+// ── Chart modal (read-only, self-paced viewing anytime) ─────────
+function showChart(name,artist,scale,structure) {
+  el('chartTitle').textContent=name;
+  if(!structure||!structure.length){
+    el('chartBody').innerHTML=`<div class="empty-state"><div class="icon">🎼</div><p>No structure/chords added for this song yet.</p></div>`;
+  } else {
+    el('chartBody').innerHTML=`<div style="color:var(--text-secondary);font-size:13px;margin-bottom:14px">${esc(artist||'')}${scale?' · Key: '+esc(scale):''}</div>`+
+      structure.map(sec=>`<div class="chart-section"><div class="chart-section-title">${esc(sec.label||'Section')}</div><div class="chart-lyrics">${renderChordProBlock(sec.chordpro)}</div></div>`).join('');
+  }
+  openModal('chartModal');
+}
+window.openSongChart = (cid,sid) => {
+  const song=(S.songCache[cid]||[]).find(s=>s.id===sid);
+  if(!song) return;
+  showChart(song.name,song.artist,song.scale,song.structure||[]);
+};
+window.openSetlistChart = i => {
+  const item=S.setlist[i];
+  if(!item) return;
+  showChart(item.name,item.artist,item.scale,item.structure||[]);
+};
+
+// ── Live session (leader pushes section sync to the band) ───────
+window.goLive = async i => {
+  const item=S.setlist[i];
+  if(!item||!item.structure||!item.structure.length){ toast('This song has no structure/chords added yet','error'); return; }
+  try {
+    await setDoc(doc(db,'liveSession','current'),{
+      active:true, name:item.name, artist:item.artist||'', scale:item.scale||'',
+      structure:item.structure, sectionIndex:0, updatedAt:Date.now()
+    });
+    openLiveMode();
+  } catch(e){ toast('Could not start live session','error'); }
+};
+window.openLiveFollow = () => { if(S.live.active) openLiveMode(); };
+function openLiveMode() {
+  el('liveMode').classList.add('open'); document.body.style.overflow='hidden';
+  renderLiveMode();
+}
+function updateLiveBanner() {
+  const b=el('liveBanner');
+  if(!S.live.active){ b.style.display='none'; return; }
+  b.style.display='flex';
+  const sec=(S.live.structure||[])[S.live.sectionIndex]||{};
+  el('liveBannerText').textContent=`${S.live.name} — ${sec.label||''} · tap to follow`;
+}
+function renderLiveMode() {
+  if(!S.live.active) return;
+  const {name,artist,scale,structure,sectionIndex}=S.live;
+  el('lvSongName').textContent=`${name}${scale?' · '+scale:''}`;
+  el('lvDots').innerHTML=structure.map((_,i)=>`<span class="lv-dot${i===sectionIndex?' active':''}"></span>`).join('');
+  const sec=structure[sectionIndex];
+  el('lvSectionLabel').textContent=sec?sec.label:'';
+  el('lvChart').innerHTML=sec?renderChordProBlock(sec.chordpro):'';
+  const next=structure[sectionIndex+1];
+  el('lvNext').innerHTML=next?`Coming up next: <b>${esc(next.label)}</b>`:`<b>Last section</b> — song ending`;
+  el('lvControls').innerHTML=S.isEditor?`
+    <button class="lv-btn" ${sectionIndex<=0?'disabled':''} onclick="lvStep(-1)">◀ Prev</button>
+    <button class="lv-btn primary" ${sectionIndex>=structure.length-1?'disabled':''} onclick="lvStep(1)">Next ▶</button>`:'';
+}
+window.lvStep = async dir => {
+  const ni=S.live.sectionIndex+dir;
+  if(ni<0||ni>=S.live.structure.length) return;
+  try { await updateDoc(doc(db,'liveSession','current'),{sectionIndex:ni,updatedAt:Date.now()}); }
+  catch(e){ toast('Could not sync section','error'); }
+};
+window.exitLiveMode = () => {
+  if(S.isEditor){
+    el('confTitle').textContent='End Live Session?';
+    el('confText').textContent='This stops the live section sync for everyone following along on their phones.';
+    el('confBtn').textContent='End Live';
+    el('confBtn').onclick=async()=>{
+      closeModal('confirmModal');
+      el('liveMode').classList.remove('open'); document.body.style.overflow='';
+      try { await setDoc(doc(db,'liveSession','current'),{active:false},{merge:true}); }
+      catch(e){ toast('Could not end live session','error'); }
+    };
+    openModal('confirmModal');
+  } else {
+    el('liveMode').classList.remove('open'); document.body.style.overflow='';
+  }
 };
 
 let pd=null;
